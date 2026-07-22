@@ -183,8 +183,9 @@ def safe_fetch_url(url):
 
 # --------------------------------------------------------------------- HTTP
 
-@app.route("/", methods=["POST"])
-def guardrail():
+@app.route("/", defaults={"_path": ""}, methods=["POST"])
+@app.route("/<path:_path>", methods=["POST"])
+def guardrail(_path):
     data = request.get_json(force=True, silent=True)
     if not isinstance(data, dict):
         return jsonify({"action": "block", "reason": "invalid request body"})
