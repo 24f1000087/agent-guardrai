@@ -141,7 +141,19 @@ def _check_url_hop(url):
     hostname = parsed.hostname
     if not hostname:
         return None, "no hostname"
-    hostname = hostname.lower().rstrip(".")
+    hostname = hostname.lower()
+
+    # A trailing dot is a legitimate DNS root indicator, but only ONE is
+    # valid. "example.com.." or "example.com..." are malformed and must
+    # not be silently normalized down to "example.com" -- doing so is
+    # exactly the kind of over-eager canonicalization that lets a
+    # malformed-but-allowlist-shaped hostname slip through.
+    if hostname.endswith(".."):
+        return None, "malformed hostname (multiple trailing dots)"
+    if hostname.endswith("."):
+        hostname = hostname[:-1]
+    if not hostname or ".." in hostname or hostname.startswith("."):
+        return None, "malformed hostname"
 
     if hostname not in ALLOWED_HOSTS:
         return None, "host not in allowlist"
