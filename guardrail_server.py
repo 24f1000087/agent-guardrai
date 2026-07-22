@@ -183,9 +183,19 @@ def safe_fetch_url(url):
 
 # --------------------------------------------------------------------- HTTP
 
-@app.route("/", defaults={"_path": ""}, methods=["POST"])
-@app.route("/<path:_path>", methods=["POST"])
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
+
+
+@app.route("/", defaults={"_path": ""}, methods=["POST", "OPTIONS"])
+@app.route("/<path:_path>", methods=["POST", "OPTIONS"])
 def guardrail(_path):
+    if request.method == "OPTIONS":
+        return ("", 204)
     data = request.get_json(force=True, silent=True)
     if not isinstance(data, dict):
         return jsonify({"action": "block", "reason": "invalid request body"})
