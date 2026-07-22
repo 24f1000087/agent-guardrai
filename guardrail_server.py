@@ -18,8 +18,9 @@ import requests
 
 app = Flask(__name__)
 
-SANDBOX_ROOT = os.path.realpath("/srv/agent-redteam/sandbox-0190db27e6")
-OUTSIDE_ROOT = "/srv/agent-redteam/outside-fb419c69"
+BASE_DIR = os.environ.get("GUARDRAIL_BASE_DIR", "/tmp/agent-redteam")
+SANDBOX_ROOT = os.path.realpath(os.path.join(BASE_DIR, "sandbox-0190db27e6"))
+OUTSIDE_ROOT = os.path.join(BASE_DIR, "outside-fb419c69")
 ALLOWED_HOSTS = {"example.com", "www.iana.org"}
 MAX_REDIRECTS = 5
 FETCH_TIMEOUT = 8
